@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afrique Demain - Lecture</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
+        .article { max-width: 800px; margin: 2rem auto; background: white; padding: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .article img { width: 100%; max-height: 400px; object-fit: cover; }
+        .article h1 { font-size: 2rem; margin: 1rem 0; font-weight: bold; }
+        .article p { line-height: 1.6; font-size: 1.1rem; color: #333; }
+        .back-btn { display: inline-block; margin: 1rem; padding: 0.5rem 1rem; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn">← Retour à la liste</a>
+    <div class="article" id="article-content"></div>
+    <script>
+        const apiBase = window.location.origin;
+        async function loadArticle() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) { document.getElementById('article-content').innerHTML = '<p>ID manquant.</p>'; return; }
+            const res = await fetch(`${apiBase}/api/news/${id}`);
+            if (!res.ok) { document.getElementById('article-content').innerHTML = '<p>Actualité non trouvée.</p>'; return; }
+            const item = await res.json();
+            document.getElementById('article-content').innerHTML = `
+                <img src="${apiBase}/uploads/${item.image_path}" alt="${item.title}">
+                <h1>${item.title}</h1>
+                <p>${item.description}</p>
+            `;
+        }
+        window.onload = loadArticle;
+    </script>
+</body>
+</html>
