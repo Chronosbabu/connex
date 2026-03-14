@@ -4,22 +4,18 @@ import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 
-# chemin du projet
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# dossiers
 TEMPLATE_DIR = os.path.join(BASE_DIR, "template")
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 DB_PATH = os.path.join(BASE_DIR, "news.db")
 
-# création dossier uploads si absent
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
-# création base de données
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("""
@@ -37,27 +33,24 @@ def init_db():
 init_db()
 
 
-# page principale
 @app.route("/")
 def serve_liste():
     return send_from_directory(TEMPLATE_DIR, "liste.html")
 
 
-# page lire
 @app.route("/lire")
 def serve_lire():
     return send_from_directory(TEMPLATE_DIR, "lire.html")
 
 
-# servir les images uploadées
 @app.route("/uploads/<filename>")
 def serve_upload(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
 
-# API : liste des news
 @app.route("/api/news", methods=["GET"])
 def get_news():
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
@@ -83,7 +76,6 @@ def get_news():
     return jsonify(news)
 
 
-# API : détail d'une news
 @app.route("/api/news/<int:news_id>", methods=["GET"])
 def get_news_detail(news_id):
 
@@ -111,7 +103,6 @@ def get_news_detail(news_id):
     return jsonify({"error": "Not found"}), 404
 
 
-# API : publier une news
 @app.route("/api/publish", methods=["POST"])
 def publish_news():
 
@@ -157,6 +148,6 @@ def publish_news():
     })
 
 
-# démarrage local (utile seulement pour tester sur ton ordinateur)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
