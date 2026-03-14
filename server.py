@@ -4,20 +4,22 @@ import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 
-# chemins absolus (important pour Render)
+# chemin du projet
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-TEMPLATE_FOLDER = os.path.join(BASE_DIR, "template")
+# dossiers
+TEMPLATE_DIR = os.path.join(BASE_DIR, "template")
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 DB_PATH = os.path.join(BASE_DIR, "news.db")
 
+# création dossier uploads si absent
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
-# initialisation base de données
+# création base de données
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("""
@@ -38,13 +40,13 @@ init_db()
 # page principale
 @app.route("/")
 def serve_liste():
-    return send_from_directory(TEMPLATE_FOLDER, "liste.html")
+    return send_from_directory(TEMPLATE_DIR, "liste.html")
 
 
 # page lire
 @app.route("/lire")
 def serve_lire():
-    return send_from_directory(TEMPLATE_FOLDER, "lire.html")
+    return send_from_directory(TEMPLATE_DIR, "lire.html")
 
 
 # servir les images uploadées
@@ -146,7 +148,6 @@ def publish_news():
     """, (title, description, filename, date_now))
 
     conn.commit()
-
     new_id = cursor.lastrowid
     conn.close()
 
@@ -156,6 +157,6 @@ def publish_news():
     })
 
 
-# démarrage local (pas utilisé par gunicorn)
+# démarrage local (utile seulement pour tester sur ton ordinateur)
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
